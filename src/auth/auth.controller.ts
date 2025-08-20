@@ -5,13 +5,16 @@ import { RegisterDto } from './dto/register.dto';
 import { LoginDto } from './dto/login.dto';
 import { UsersService } from '../users/users.service';
 import { JwtCookieGuard } from '../common/guards/jwt-cookie.guard';
+import { ApiCookieAuth, ApiTags } from '@nestjs/swagger';
 
+@ApiTags('auth')
+@ApiCookieAuth('access_token')
 @Controller('auth')
 export class AuthController {
   constructor(
     @Inject(forwardRef(() => UsersService))
-    private readonly usersService: UsersService, 
-    private readonly jwtService: JwtService
+    private readonly usersService: UsersService,
+    private readonly jwtService: JwtService,
   ) {}
 
   @Post('register')
@@ -53,7 +56,7 @@ export class AuthController {
   private async sign(userId: string, email: string) {
     const payload = { sub: userId, email };
     const secret = process.env.JWT_SECRET ?? 'dev-secret';
-    return this.jwtService.signAsync(payload, { secret, expiresIn: '1m' });
+    return this.jwtService.signAsync(payload, { secret, expiresIn: '1h' });
   }
 
   private setAuthCookie(res: Response, token: string) {
